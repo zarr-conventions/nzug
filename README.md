@@ -15,9 +15,9 @@ This convention defines [brief description of what this convention does]. All pr
 [Add more detailed description of the convention, its purpose, and how it fits into the Zarr ecosystem. Explain what problem it solves and how it should be used.]
 
 - Examples:
-    - [Convention metadata only](examples/minimal_example.json)
-    - [Key-prefixed pattern (recommended)](examples/key_prefixed_example.json)
-    - [Nested pattern](examples/nested_example.json)
+  - [Convention metadata only](examples/minimal_example.json)
+  - [Key-prefixed pattern (recommended)](examples/key_prefixed_example.json)
+  - [Nested pattern](examples/nested_example.json)
 
 ## Motivation
 
@@ -68,12 +68,11 @@ Individual attributes are prefixed with `template:`. This is the recommended app
 | template:another_one | \[number]                 | Describe the field...                        |
 
 **Example**:
+
 ```json
 {
   "attributes": {
-    "zarr_conventions": [
-      { "name": "template:", "spec_url": "..." }
-    ],
+    "zarr_conventions": [{ "name": "template:", "spec_url": "..." }],
     "template:new_field": "example value",
     "template:xyz": { "x": 1.0, "y": 2.0, "z": 3.0 }
   }
@@ -86,17 +85,16 @@ All convention properties are nested under a single `template` key.
 
 **Convention metadata name**: `template`
 
-| Field Name           | Type                      | Description                                  |
-| -------------------- | ------------------------- | -------------------------------------------- |
-| template             | [Template Object](#template-object) | **REQUIRED**. Template convention properties |
+| Field Name | Type                                | Description                                  |
+| ---------- | ----------------------------------- | -------------------------------------------- |
+| template   | [Template Object](#template-object) | **REQUIRED**. Template convention properties |
 
 **Example**:
+
 ```json
 {
   "attributes": {
-    "zarr_conventions": [
-      { "name": "template", "spec_url": "..." }
-    ],
+    "zarr_conventions": [{ "name": "template", "spec_url": "..." }],
     "template": {
       "new_field": "example value",
       "xyz": { "x": 1.0, "y": 2.0, "z": 3.0 }
@@ -109,11 +107,11 @@ All convention properties are nested under a single `template` key.
 
 When using the nested pattern, all properties are contained in the `template` object:
 
-| Field Name   | Type                      | Description                                  |
-| ------------ | ------------------------- | -------------------------------------------- |
-| new_field    | string                    | **REQUIRED**. Describe the required field... |
-| xyz          | [XYZ Object](#xyz-object) | Describe the field...                        |
-| another_one  | \[number]                 | Describe the field...                        |
+| Field Name  | Type                      | Description                                  |
+| ----------- | ------------------------- | -------------------------------------------- |
+| new_field   | string                    | **REQUIRED**. Describe the required field... |
+| xyz         | [XYZ Object](#xyz-object) | Describe the field...                        |
+| another_one | \[number]                 | Describe the field...                        |
 
 ### Additional Field Information
 
@@ -159,7 +157,7 @@ This section helps potential implementers assess the convention's maturity and a
 - Tutorials, blog posts, or other resources demonstrating this convention
 - Community discussions or working groups
 
-*If you implement or use this convention, please add your implementation to this list by submitting a pull request.*
+_If you implement or use this convention, please add your implementation to this list by submitting a pull request._
 
 ## Acknowledgements
 

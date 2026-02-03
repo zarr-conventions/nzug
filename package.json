@@ -3,9 +3,15 @@
   "name": "zarr-convention-metadata-template",
   "version": "0.1.0",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "fmt": "prettier --write **/*.{js,json,md}",
+    "lint": "eslint ."
   },
   "devDependencies": {
-    "ajv": "^8.12.0"
+    "ajv": "^8.17.1",
+    "eslint": "^9.39.2",
+    "prettier": "^3.7.4",
+    "@eslint/json": "^0.14.0",
+    "@eslint/markdown": "^7.5.1"
   }
 }
