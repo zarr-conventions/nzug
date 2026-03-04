@@ -2,8 +2,8 @@
 
 - **UUID**: d0a980b5-c644-4dcc-85a1-283799a58f40
 - **Name**: NZUG-1.0
-- **Schema URL**: "https://raw.githubusercontent.com/zarr-conventions/nzug/refs/tags/v1/schema.json"
-- **Spec URL**: "https://github.com/zarr-conventions/nzug/blob/v1/README.md"
+- **Schema URL**: "https://github.com/zarr-conventions/nzug/blob/main/schema.json"
+- **Spec URL**: "https://github.com/zarr-conventions/nzug/blob/main/README.md"
 - **Scope**: Array, Group
 - **Extension Maturity Classification**: Proposal
 - **Owner**: @dblodgett-usgs
