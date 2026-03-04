@@ -2,7 +2,8 @@
 
 This document captures the design decisions, open questions, and key references for the
 **NZUG (NetCDF-Zarr Users Guide)** convention. It is intended to orient contributors and
-to resume working sessions without re-deriving settled conclusions.
+to resume working sessions without re-deriving settled conclusions. This content was 
+generated to document and iterative development process using Claude Opus 4.6.
 
 ---
 

@@ -450,3 +450,5 @@ _If you implement or use this convention, please add your implementation to this
 ## Acknowledgements
 
 This convention specification is based on the [zarr-conventions template](https://github.com/zarr-conventions/template), which is itself based on the [STAC extensions template](https://github.com/stac-extensions/template/blob/main/README.md). The structural concepts are derived from the [NetCDF Users Guide](https://docs.unidata.ucar.edu/nug/current/) and adapted for the Zarr v3 data model.
+
+This convention document was originally developed with assistance from Claude Opus 4.6. The [CONTEXT.md](CONTEXT.md) included as an ancillary file provides traceability to key references and decisions that were used in the process.
