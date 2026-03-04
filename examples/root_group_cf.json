@@ -1,0 +1,22 @@
+{
+  "zarr_format": 3,
+  "node_type": "group",
+  "attributes": {
+    "zarr_conventions": [
+      {
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/nzug/refs/tags/v1/schema.json",
+        "spec_url": "https://github.com/zarr-conventions/nzug/blob/v1/README.md",
+        "uuid": "d0a980b5-c644-4dcc-85a1-283799a58f40",
+        "name": "NZUG-1.0",
+        "description": "Structural interoperability layer for scientific array conventions on Zarr v3"
+      }
+    ],
+    "conventions": "NZUG-1.0 CF-1.12",
+    "title": "ERA5 hourly data on single levels",
+    "institution": "European Centre for Medium-Range Weather Forecasts",
+    "source": "ERA5 reanalysis",
+    "history": "2026-01-15T00:00:00Z: Converted from GRIB to Zarr v3",
+    "references": "https://doi.org/10.1002/qj.3803",
+    "comment": "Subset of ERA5 for demonstration purposes"
+  }
+}

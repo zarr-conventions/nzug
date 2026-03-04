@@ -1,0 +1,41 @@
+{
+  "zarr_format": 3,
+  "node_type": "array",
+  "shape": [8760, 721, 1440],
+  "data_type": "int16",
+  "dimension_names": ["time", "lat", "lon"],
+  "chunk_grid": {
+    "name": "regular",
+    "configuration": { "chunk_shape": [100, 121, 240] }
+  },
+  "chunk_key_encoding": {
+    "name": "default",
+    "configuration": { "separator": "/" }
+  },
+  "fill_value": -9999,
+  "codecs": [
+    { "name": "bytes", "configuration": { "endian": "little" } },
+    { "name": "zstd", "configuration": { "level": 5 } }
+  ],
+  "attributes": {
+    "zarr_conventions": [
+      {
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/nzug/refs/tags/v1/schema.json",
+        "spec_url": "https://github.com/zarr-conventions/nzug/blob/v1/README.md",
+        "uuid": "d0a980b5-c644-4dcc-85a1-283799a58f40",
+        "name": "NZUG-1.0",
+        "description": "Structural interoperability layer for scientific array conventions on Zarr v3"
+      }
+    ],
+    "long_name": "2-meter air temperature",
+    "units": "K",
+    "scale_factor": 0.01,
+    "add_offset": 273.15,
+    "_nczarr_attr": {
+      "types": {
+        "scale_factor": "float32",
+        "add_offset": "float32"
+      }
+    }
+  }
+}

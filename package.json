@@ -1,7 +1,7 @@
 {
   "type": "module",
-  "name": "zarr-convention-metadata-template",
-  "version": "0.1.0",
+  "name": "zarr-convention-nzug",
+  "version": "1.0.0-draft",
   "scripts": {
     "test": "node test.js",
     "fmt": "prettier --write **/*.{js,json,md}",

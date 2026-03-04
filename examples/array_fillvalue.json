@@ -1,0 +1,32 @@
+{
+  "zarr_format": 3,
+  "node_type": "array",
+  "shape": [365, 180, 360],
+  "data_type": "float32",
+  "dimension_names": ["time", "lat", "lon"],
+  "chunk_grid": {
+    "name": "regular",
+    "configuration": { "chunk_shape": [30, 180, 360] }
+  },
+  "chunk_key_encoding": {
+    "name": "default",
+    "configuration": { "separator": "/" }
+  },
+  "fill_value": 0.0,
+  "codecs": [
+    { "name": "bytes", "configuration": { "endian": "little" } },
+    { "name": "zstd", "configuration": { "level": 3 } }
+  ],
+  "attributes": {
+    "zarr_conventions": [
+      {
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/nzug/refs/tags/v1/schema.json",
+        "spec_url": "https://github.com/zarr-conventions/nzug/blob/v1/README.md",
+        "uuid": "d0a980b5-c644-4dcc-85a1-283799a58f40",
+        "name": "NZUG-1.0",
+        "description": "Structural interoperability layer for scientific array conventions on Zarr v3"
+      }
+    ],
+    "_FillValue": -9999.0
+  }
+}
