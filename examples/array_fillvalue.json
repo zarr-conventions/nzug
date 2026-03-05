@@ -20,10 +20,10 @@
   "attributes": {
     "zarr_conventions": [
       {
-        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/nzug/refs/tags/v1/schema.json",
-        "spec_url": "https://github.com/zarr-conventions/nzug/blob/v1/README.md",
+        "schema_url": "https://raw.githubusercontent.com/zarr-conventions/nz/refs/tags/v1/schema.json",
+        "spec_url": "https://github.com/zarr-conventions/nz/blob/v1/README.md",
         "uuid": "d0a980b5-c644-4dcc-85a1-283799a58f40",
-        "name": "NZUG-1.0",
+        "name": "NZ-1.0",
         "description": "Structural interoperability layer for scientific array conventions on Zarr v3"
       }
     ],

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "NZUG-1.0 Convention",
-  "description": "Schema for NZUG-1.0 (NetCDF Zarr Users Guide) convention — structural interoperability layer for scientific array conventions on Zarr v3",
+  "title": "NZ-1.0 Convention",
+  "description": "Schema for NZ-1.0 (NetCDF Zarr convention) convention — structural interoperability layer for scientific array conventions on Zarr v3",
   "type": "object",
   "properties": {
     "zarr_format": {
@@ -56,16 +56,16 @@
   "$defs": {
     "conventionMetadata": {
       "type": "object",
-      "description": "NZUG-1.0 convention metadata object for use in zarr_conventions array",
+      "description": "NZ-1.0 convention metadata object for use in zarr_conventions array",
       "properties": {
         "schema_url": {
           "type": "string",
-          "const": "https://raw.githubusercontent.com/zarr-conventions/nzug/refs/tags/v1/schema.json",
+          "const": "https://raw.githubusercontent.com/zarr-conventions/nz/refs/tags/v1/schema.json",
           "description": "URL to the JSON Schema definition for this convention"
         },
         "spec_url": {
           "type": "string",
-          "const": "https://github.com/zarr-conventions/nzug/blob/v1/README.md",
+          "const": "https://github.com/zarr-conventions/nz/blob/v1/README.md",
           "description": "URL to the full specification document"
         },
         "uuid": {
@@ -75,7 +75,7 @@
         },
         "name": {
           "type": "string",
-          "const": "NZUG-1.0",
+          "const": "NZ-1.0",
           "description": "Human-readable name of the convention"
         },
         "description": {
@@ -126,15 +126,15 @@
     },
     "groupRequirements": {
       "type": "object",
-      "description": "Requirements specific to group nodes in NZUG-1.0",
+      "description": "Requirements specific to group nodes in NZ-1.0",
       "properties": {
         "attributes": {
           "type": "object",
           "properties": {
             "conventions": {
               "type": "string",
-              "pattern": "NZUG-1\\.0",
-              "description": "Space-separated convention identifiers; MUST include NZUG-1.0"
+              "pattern": "NZ-1\\.0",
+              "description": "Space-separated convention identifiers; MUST include NZ-1.0"
             },
             "_nczarr_attr": {
               "$ref": "#/$defs/nczarrAttr"
@@ -146,7 +146,7 @@
     },
     "arrayRequirements": {
       "type": "object",
-      "description": "Requirements specific to array nodes in NZUG-1.0",
+      "description": "Requirements specific to array nodes in NZ-1.0",
       "properties": {
         "shape": {
           "type": "array",
