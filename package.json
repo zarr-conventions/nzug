@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "zarr-convention-nzug",
+  "name": "zarr-convention-nz",
   "version": "1.0.0-draft",
   "scripts": {
     "test": "node test.js",
