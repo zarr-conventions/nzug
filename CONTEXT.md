@@ -74,11 +74,18 @@ remains readable; only interpretation is affected.
 | `_FillValue` semantics          | Semantic missing data indicator, decoupled from storage `fill_value`                                                           | ✅ Ignoring means no masking, not a read failure           |
 | Reserved attribute names        | Root group and array attribute names reserved with defined semantics                                                           | ✅ Seen as opaque key-value pairs by naive readers         |
 
-**One requirement that was identified as out of scope for a zarr-convention:**
-Scalar array reader support (`shape: []`) was originally framed as a MUST for implementations.
-This is a reader capability demand, not an interpretive convention, and conflicts with the
-zarr-conventions-spec requirement that conventions be safely ignorable. This has been softened
-to a SHOULD or reframed as informative.
+**On scalar arrays and the safely-ignorable constraint:**
+Scalar arrays (`shape: []`) are valid Zarr v3 — they are not an NZ invention. The Zarr v3
+spec permits arrays with empty shape. Because scalar arrays are already part of the Zarr v3
+format spec that NZ builds on, NZ can require them without violating the safely-ignorable
+principle. The principle means NZ cannot require reader capabilities *beyond* Zarr v3; it
+does not prevent NZ from requiring conformant use of Zarr v3 features that implementations
+may have simply not exercised yet.
+
+The distinction matters more broadly: NZ may normatively require any behavior that is
+already permitted by Zarr v3 (structural constraints, required fields, type annotations in
+attributes). What NZ cannot do is require new format-level capabilities that would cause a
+naive Zarr v3 reader to fail on NZ datasets.
 
 ### Attribute namespacing
 
@@ -146,8 +153,10 @@ these substitutions; the CF spec itself is unchanged.
 - **Convention name:** `NZ-1.0` vs `NZUG-1.0` vs `NZarr-1.0` vs something else. The zarr-conventions-spec
   uses UUID as primary identifier so the string name matters less for machine identification,
   but matters for human legibility and citation.
-- **Scalar arrays:** Soften to SHOULD or drop from normative content entirely and move to
-  informative?
+- **Scalar arrays:** The MUST on reader support is appropriate (scalar arrays are valid Zarr
+  v3, not an NZ addition). The remaining question is whether the informative motivation text
+  (use as single-valued coordinate variables) is sufficient, or whether the normative section
+  should be more explicit about what "support" means for producers vs. readers.
 - **Repository home:** zarr-conventions org is the natural home. Requires someone with org
   access to create the repo (USGS GitHub policy prevents creating repos under personal or
   org accounts for this work).
