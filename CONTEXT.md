@@ -47,8 +47,14 @@ spec. No changes to CF are required.
 - Declaration via `"conventions": "NZ-1.0"` in root group `attributes`. Space-separated
   for multi-convention datasets: `"conventions": "NZ-1.0 CF-1.12"`.
 - `Conventions` (capital C, NUG legacy) treated as equivalent to `conventions` during reading.
-- A `zarr_conventions` CMO entry (per zarr-conventions-spec framework) is optional but
-  recommended. See Appendix C of the spec for the registration object template.
+- A `zarr_conventions` CMO entry in a **dataset** (per zarr-conventions-spec framework) is
+  optional but recommended. The spec's Convention Declaration note correctly says datasets
+  "MAY additionally include" this entry.
+- The spec's "Convention Registration" section shows the CMO object that registers **the
+  convention itself** in the zarr-conventions framework — a one-time act by the convention
+  author, not a per-dataset requirement. These are two different things and should not be
+  confused. The spec prose "The convention must be registered" describes the convention's
+  own framework registration; it does not impose a MUST on datasets.
 
 ### Zarr v3 as baseline
 
@@ -70,15 +76,21 @@ remains readable; only interpretation is affected.
 | `dimension_names` required      | Every array MUST have fully populated `dimension_names` (no null/empty entries)                                                | ✅ Producer constraint only                                |
 | Shared dimension constraint     | Within a group, arrays sharing a dimension label MUST have the same length along that axis                                     | ✅ Producer constraint only                                |
 | Dimension coordinate definition | Structural identification: 1D array whose `dimension_names` entry matches its own name and whose values are strictly monotonic | ✅ Interpretive only                                       |
-| `_type` annotation              | JSON object in `attributes` mapping attribute names to explicit NZarr type identifiers                                         | ✅ Ignoring causes silent precision loss, not read failure |
 | `_FillValue` semantics          | Semantic missing data indicator, decoupled from storage `fill_value`                                                           | ✅ Ignoring means no masking, not a read failure           |
 | Reserved attribute names        | Root group and array attribute names reserved with defined semantics                                                           | ✅ Seen as opaque key-value pairs by naive readers         |
 
-**One requirement that was identified as out of scope for a zarr-convention:**
-Scalar array reader support (`shape: []`) was originally framed as a MUST for implementations.
-This is a reader capability demand, not an interpretive convention, and conflicts with the
-zarr-conventions-spec requirement that conventions be safely ignorable. This has been softened
-to a SHOULD or reframed as informative.
+**On scalar arrays and the safely-ignorable constraint:**
+Scalar arrays (`shape: []`) are valid Zarr v3 — they are not an NZ invention. The Zarr v3
+spec permits arrays with empty shape. Because scalar arrays are already part of the Zarr v3
+format spec that NZ builds on, NZ can require them without violating the safely-ignorable
+principle. The principle means NZ cannot require reader capabilities *beyond* Zarr v3; it
+does not prevent NZ from requiring conformant use of Zarr v3 features that implementations
+may have simply not exercised yet.
+
+The distinction matters more broadly: NZ may normatively require any behavior that is
+already permitted by Zarr v3 (structural constraints, required fields, attribute semantics).
+What NZ cannot do is require new format-level capabilities that would cause a
+naive Zarr v3 reader to fail on NZ datasets.
 
 ### Attribute namespacing
 
@@ -92,9 +104,22 @@ collisions. NZ uses flat unprefixed attributes by design, for two reasons:
    namespacing guidance targets. The analogy: `zarr_format` and `node_type` are also
    unprefixed structural fields.
 
-**Exception flagged:** `_type` is novel (no existing ecosystem precedent) and could
-reasonably take a prefix (e.g., `nz:type`) without breaking anything. This remains open
-for community input.
+### Attribute type annotation (not part of NZ)
+
+NZ-1.0 does not define or require a general attribute type annotation mechanism. Attribute
+typing is semantic, not structural, and belongs to domain conventions. `_FillValue` type is
+the array's `data_type`. The `_nczarr_attr` pattern (from NCZarr) was considered and rejected
+(see issues #2 and #3): it adds complexity to the structural layer, is not necessary for NZ's
+stated goals, and leaves attribute-precision decisions to domain conventions that understand
+the semantics. Domain conventions MAY define their own annotation systems if precision matters.
+
+### scale_factor / add_offset — codec vs. attribute encoding
+
+CF requires typed `scale_factor` and `add_offset` attributes for data packing. JSON attributes in Zarr lack numeric type precision, creating an interoperability gap (see [nz#2](https://github.com/zarr-conventions/nz/issues/2)).
+
+The decision: prefer the Zarr v3 codec pipeline for scale-offset transformations. A `scale-offset` codec extension is under development ([zarr-extensions #43](https://github.com/zarr-developers/zarr-extensions/pull/43)) that provides typed configuration for scale and offset parameters. Readers encountering attribute-based `scale_factor`/`add_offset` declarations should map them to the equivalent codec behavior at decode time.
+
+This is informative guidance in NZ, not normative, because `scale_factor` and `add_offset` are domain convention attributes (defined by CF, not NZ). NZ includes the guidance in its "Out of Scope" section to direct implementers toward the codec-based approach.
 
 ### Separation of concerns — what is explicitly out of scope
 
@@ -135,7 +160,7 @@ these substitutions; the CF spec itself is unchanged.
 | coordinate variable                | dimension coordinate (1D array, `dimension_names` matches own name, monotonic) |
 | global attribute                   | root group attribute                                                           |
 | variable attribute                 | array attribute                                                                |
-| typed attribute (`NC_FLOAT`, etc.) | attribute + optional `_type` annotation                                        |
+| typed attribute (`NC_FLOAT`, etc.) | attribute (JSON type; precision rules left to domain conventions)              |
 | `_FillValue` variable attribute    | `_FillValue` array attribute                                                   |
 | `Conventions` global attribute     | `conventions` root group attribute                                             |
 
@@ -146,10 +171,10 @@ these substitutions; the CF spec itself is unchanged.
 - **Convention name:** `NZ-1.0` vs `NZUG-1.0` vs `NZarr-1.0` vs something else. The zarr-conventions-spec
   uses UUID as primary identifier so the string name matters less for machine identification,
   but matters for human legibility and citation.
-- **`_type` namespacing:** Should `_type` take a prefix (`nz:type`) given it is novel and
-  has no legacy tooling to break?
-- **Scalar arrays:** Soften to SHOULD or drop from normative content entirely and move to
-  informative?
+- **Scalar arrays:** The MUST on reader support is appropriate (scalar arrays are valid Zarr
+  v3, not an NZ addition). The remaining question is whether the informative motivation text
+  (use as single-valued coordinate variables) is sufficient, or whether the normative section
+  should be more explicit about what "support" means for producers vs. readers.
 - **Repository home:** zarr-conventions org is the natural home. Requires someone with org
   access to create the repo (USGS GitHub policy prevents creating repos under personal or
   org accounts for this work).
