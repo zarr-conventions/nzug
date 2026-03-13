@@ -76,7 +76,6 @@ remains readable; only interpretation is affected.
 | `dimension_names` required      | Every array MUST have fully populated `dimension_names` (no null/empty entries)                                                | ✅ Producer constraint only                                |
 | Shared dimension constraint     | Within a group, arrays sharing a dimension label MUST have the same length along that axis                                     | ✅ Producer constraint only                                |
 | Dimension coordinate definition | Structural identification: 1D array whose `dimension_names` entry matches its own name and whose values are strictly monotonic | ✅ Interpretive only                                       |
-| `_nczarr_attr` annotation       | JSON object in `attributes` with a `"types"` key mapping attribute names to Zarr v3 type identifiers; adopted from NCZarr     | ✅ Ignoring causes silent precision loss, not read failure |
 | `_FillValue` semantics          | Semantic missing data indicator, decoupled from storage `fill_value`                                                           | ✅ Ignoring means no masking, not a read failure           |
 | Reserved attribute names        | Root group and array attribute names reserved with defined semantics                                                           | ✅ Seen as opaque key-value pairs by naive readers         |
 
@@ -89,8 +88,8 @@ does not prevent NZ from requiring conformant use of Zarr v3 features that imple
 may have simply not exercised yet.
 
 The distinction matters more broadly: NZ may normatively require any behavior that is
-already permitted by Zarr v3 (structural constraints, required fields, type annotations in
-attributes). What NZ cannot do is require new format-level capabilities that would cause a
+already permitted by Zarr v3 (structural constraints, required fields, attribute semantics).
+What NZ cannot do is require new format-level capabilities that would cause a
 naive Zarr v3 reader to fail on NZ datasets.
 
 ### Attribute namespacing
@@ -105,9 +104,14 @@ collisions. NZ uses flat unprefixed attributes by design, for two reasons:
    namespacing guidance targets. The analogy: `zarr_format` and `node_type` are also
    unprefixed structural fields.
 
-**Note:** `_nczarr_attr` is adopted from NCZarr (netCDF-C's Zarr backend), which uses the
-same `_nczarr_attr` / `types` structure in Zarr v2 `.zattrs`. Using this established pattern
-avoids a novel reserved name and provides direct interoperability with NCZarr-produced datasets.
+### Attribute type annotation (not part of NZ)
+
+NZ-1.0 does not define or require a general attribute type annotation mechanism. Attribute
+typing is semantic, not structural, and belongs to domain conventions. `_FillValue` type is
+the array's `data_type`. The `_nczarr_attr` pattern (from NCZarr) was considered and rejected
+(see issues #2 and #3): it adds complexity to the structural layer, is not necessary for NZ's
+stated goals, and leaves attribute-precision decisions to domain conventions that understand
+the semantics. Domain conventions MAY define their own annotation systems if precision matters.
 
 ### Separation of concerns — what is explicitly out of scope
 
@@ -148,7 +152,7 @@ these substitutions; the CF spec itself is unchanged.
 | coordinate variable                | dimension coordinate (1D array, `dimension_names` matches own name, monotonic) |
 | global attribute                   | root group attribute                                                           |
 | variable attribute                 | array attribute                                                                |
-| typed attribute (`NC_FLOAT`, etc.) | attribute + optional `_nczarr_attr` type annotation                            |
+| typed attribute (`NC_FLOAT`, etc.) | attribute (JSON type; precision rules left to domain conventions)              |
 | `_FillValue` variable attribute    | `_FillValue` array attribute                                                   |
 | `Conventions` global attribute     | `conventions` root group attribute                                             |
 

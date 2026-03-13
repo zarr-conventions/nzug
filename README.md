@@ -30,7 +30,6 @@ All properties use standard attribute names (not namespaced) and are placed at t
 - Examples:
   - [Root group (minimal)](examples/root_group.json)
   - [Basic array](examples/array_basic.json)
-  - [Array with typed attributes](examples/array_typed_attrs.json)
   - [Array with \_FillValue](examples/array_fillvalue.json)
   - [Root group with CF-1.12](examples/root_group_cf.json)
   - [Dimension coordinate](examples/dimension_coordinate.json)
@@ -62,7 +61,7 @@ NZ adds normative constraints and definitions above the Zarr v3 specification. I
 
 ### Relationship to Zarr v2
 
-NZ is defined against Zarr v3, but its structural concepts have direct analogues in Zarr v2 datasets. Many v2 datasets already follow the patterns NZ formalizes: xarray writes dimension names via the `_ARRAY_DIMENSIONS` attribute in `.zattrs`, NCZarr writes attribute type annotations via `_nczarr_attr` in `.zattrs`, and `_FillValue` and `conventions` are widely used. A Zarr v2 dataset that follows these existing practices is structurally equivalent to a NZ-1.0 dataset, differing only in the metadata container (`.zattrs` / `.zarray` vs unified `zarr.json`) and the dimension name mechanism (`_ARRAY_DIMENSIONS` attribute vs `dimension_names` field). NZ does not define a v2 profile, but implementations that support both format versions MAY apply NZ structural semantics to v2 datasets that use these established patterns.
+NZ is defined against Zarr v3, but its structural concepts have direct analogues in Zarr v2 datasets. Many v2 datasets already follow the patterns NZ formalizes: xarray writes dimension names via the `_ARRAY_DIMENSIONS` attribute in `.zattrs`, and `_FillValue` and `conventions` are widely used. A Zarr v2 dataset that follows these existing practices is structurally equivalent to a NZ-1.0 dataset, differing only in the metadata container (`.zattrs` / `.zarray` vs unified `zarr.json`) and the dimension name mechanism (`_ARRAY_DIMENSIONS` attribute vs `dimension_names` field). NZ does not define a v2 profile, but implementations that support both format versions MAY apply NZ structural semantics to v2 datasets that use these established patterns.
 
 ### Relationship to Domain Conventions
 
@@ -208,7 +207,7 @@ Scalar arrays are used as single-valued coordinate variables — for example, to
 
 ## Type System
 
-The NUG's typed attribute model is a load-bearing feature for domain conventions. Precision requirements for numeric attributes — such as packing parameters and CRS coefficients — depend on knowing whether an attribute value is `float32` or `float64`. Zarr v3's JSON attribute model does not provide this distinction. This section defines the NZ type system for attributes.
+Array data types are as defined in the Zarr v3 specification. Attribute values use JSON types with the default mapping defined below. Domain conventions are responsible for defining attribute-precision rules when required; NZ does not provide a general attribute type annotation mechanism.
 
 ### Array Data Types
 
@@ -233,60 +232,11 @@ Default type mapping from JSON attribute values to NZ types:
 
 Homogeneity is required within JSON arrays used as attribute values. A JSON array containing mixed numeric and string values is not a valid NZ attribute value.
 
-### Attribute Type Annotation
-
-**\[NZ addition\]** When a domain convention requires an attribute to be of a specific numeric type that differs from the JSON default, the array or group `zarr.json` MUST include a `_nczarr_attr` attribute. This adopts the attribute type annotation pattern established by [NCZarr](https://docs.unidata.ucar.edu/netcdf-c/current/nczarr_head.html) (netCDF-C's Zarr backend), adapted for Zarr v3.
-
-The `_nczarr_attr` attribute is a JSON object containing a single key `"types"`, whose value is a JSON object mapping attribute names to type identifiers:
-
-```json
-{
-  "zarr_format": 3,
-  "node_type": "array",
-  "shape": [8760, 721, 1440],
-  "data_type": "int16",
-  "dimension_names": ["time", "lat", "lon"],
-  "attributes": {
-    "scale_factor": 0.01,
-    "add_offset": 273.15,
-    "_nczarr_attr": {
-      "types": {
-        "scale_factor": "float32",
-        "add_offset": "float32"
-      }
-    }
-  }
-}
-```
-
-Type identifiers MUST use **Zarr v3 data type names**: `bool`, `int8`, `uint8`, `int16`, `uint16`, `int32`, `uint32`, `int64`, `uint64`, `float32`, `float64`, `complex64`, `complex128`.
-
-The following table shows the correspondence between Zarr v3 type names and NC types:
-
-| Zarr v3 type | NC type     |
-| ------------ | ----------- |
-| `int8`       | `NC_BYTE`   |
-| `uint8`      | `NC_UBYTE`  |
-| `int16`      | `NC_SHORT`  |
-| `uint16`     | `NC_USHORT` |
-| `int32`      | `NC_INT`    |
-| `uint32`     | `NC_UINT`   |
-| `int64`      | `NC_INT64`  |
-| `uint64`     | `NC_UINT64` |
-| `float32`    | `NC_FLOAT`  |
-| `float64`    | `NC_DOUBLE` |
-
-> **Interoperability note:** Datasets produced by [NCZarr](https://docs.unidata.ucar.edu/netcdf-c/current/nczarr_head.html) (netCDF-C's Zarr backend) use [NumPy dtype notation](https://numpy.org/doc/stable/reference/arrays.dtypes.html) (e.g., `<f4` for `float32`) in `_nczarr_attr` type values. NumPy dtype strings are not part of the NZ specification, but implementations are encouraged to recognize them without error to support interoperability with NCZarr-produced datasets.
-
-The `_nczarr_attr` object need not annotate every attribute — only those whose default JSON type is insufficient. Unannotated numeric attributes are interpreted at their JSON default type per [Attribute Value Types](#attribute-value-types). The `_nczarr_attr` attribute is reserved by NZ and MUST NOT be used for other purposes. Implementations SHOULD suppress `_nczarr_attr` from user-visible attribute listings.
-
-This mechanism is directly interoperable with datasets produced by [netCDF-C's NCZarr backend](https://docs.unidata.ucar.edu/netcdf-c/current/nczarr_head.html), which uses the same `_nczarr_attr` / `types` structure in Zarr v2 `.zattr` objects. NZ places this structure in Zarr v3 `zarr.json` `attributes`.
-
 ### The `_FillValue` Attribute
 
 **\[NZ addition\]** The attribute name `_FillValue` is reserved as the _semantic missing data indicator_. It is distinct from the storage-level `fill_value` field in `zarr.json`, which specifies the value used to initialize unwritten chunks.
 
-When `_FillValue` is present in an array's attributes, convention-aware readers MUST treat values equal to `_FillValue` as missing data, regardless of the storage `fill_value`. When both are present and differ, `_FillValue` governs masking semantics. The type of `_FillValue` is determined by the `_nczarr_attr` type annotation if present, or defaults to the array's `data_type`.
+When `_FillValue` is present in an array's attributes, convention-aware readers MUST treat values equal to `_FillValue` as missing data, regardless of the storage `fill_value`. When both are present and differ, `_FillValue` governs masking semantics. The type of `_FillValue` is the array's `data_type`.
 
 This decoupling is necessary because Zarr's storage `fill_value` serves a different purpose (chunk initialization) than the semantic use of `_FillValue` for missing data masking. In netCDF, these happen to be the same mechanism; in Zarr, they are independent. NZ preserves the NUG's masking semantics by defining `_FillValue` as an attribute with clear precedence over the storage-level field.
 
@@ -302,10 +252,9 @@ NZ uses standard (non-namespaced) attribute names. Only attributes that define o
 
 ### Array Attributes
 
-| Attribute      | Type                                                         | Obligation | Semantics                                                                                |
-| -------------- | ------------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------- |
-| `_FillValue`   | (see [The \_FillValue Attribute](#the-_fillvalue-attribute)) | MAY        | Semantic missing data indicator                                                          |
-| `_nczarr_attr` | object                                                       | MAY        | Attribute type annotations (see [Attribute Type Annotation](#attribute-type-annotation)) |
+| Attribute    | Type                                                         | Obligation | Semantics                       |
+| ------------ | ------------------------------------------------------------ | ---------- | ------------------------------- |
+| `_FillValue` | (see [The \_FillValue Attribute](#the-_fillvalue-attribute)) | MAY        | Semantic missing data indicator |
 
 ### Array Structural Requirements
 
@@ -340,7 +289,7 @@ A domain convention written against NZ has access to:
 
 - **Named, constrained dimensions.** The shared dimension constraint means that dimension labels within a group carry co-extent guarantees, enabling domain conventions to define co-location of arrays using the same semantics as netCDF.
 - **Dimension coordinates.** Identified structurally, without any additional attribute, exactly as coordinate variables are identified in the NUG.
-- **Typed attributes.** The `_nczarr_attr` type annotation mechanism (adopted from NCZarr) gives domain conventions a way to express precision requirements for numeric attributes that would otherwise be lost in JSON serialization.
+- **Typed attributes.** Array data types are declared via Zarr v3 `data_type`. Attribute values use JSON types; domain conventions MAY define precision rules for specific attributes when needed.
 - **Semantic fill values.** `_FillValue` decoupled from the storage `fill_value`, preserving the NUG's masking semantics independently of Zarr's chunk initialization behavior.
 - **Auxiliary arrays.** The auxiliary array concept is defined structurally, enabling domain conventions to build their own coordinate association mechanisms (e.g., the `coordinates` attribute) on top of NZ.
 
@@ -356,7 +305,7 @@ The existing CF conventions document can be applied to NZ-1.0 datasets by substi
 | coordinate variable             | dimension coordinate                                               |
 | global attribute                | root group attribute                                               |
 | variable attribute              | array attribute                                                    |
-| typed attribute                 | attribute + optional `_nczarr_attr` type annotation                |
+| typed attribute                 | attribute (JSON type; precision rules left to domain conventions)  |
 | `_FillValue` variable attribute | `_FillValue` array attribute                                       |
 | `Conventions` global attribute  | `conventions` root group attribute                                 |
 
@@ -393,9 +342,8 @@ A NZ-1.0 compliant dataset:
 3. Has fully populated `dimension_names` (no `null` or empty-string entries) in every array `zarr.json`.
 4. Satisfies the shared dimension constraint: within any group, all arrays sharing a dimension label have the same length along that axis.
 5. Uses `_FillValue` in array attributes (when present) as the semantic missing data indicator, distinct from the storage `fill_value`.
-6. Uses `_nczarr_attr` in array attributes (when present) to annotate numeric attribute precision using Zarr v3 data type names.
-7. Uses reserved attribute names only as defined in [Properties](#properties).
-8. Uses array and group names conforming to [Naming Rules](#naming-rules).
+6. Uses reserved attribute names only as defined in [Properties](#properties).
+7. Uses array and group names conforming to [Naming Rules](#naming-rules).
 
 ## Appendix A: Differences from the Zarr v3 Specification
 
@@ -404,7 +352,7 @@ A NZ-1.0 compliant dataset:
 | `dimension_names`           | Optional; entries may be `null` | Required; all entries must be non-null, non-empty strings |
 | Shared dimension constraint | Not defined                     | Required within groups                                    |
 | Dimension coordinate        | Not defined                     | Defined structurally                                      |
-| Attribute type system       | JSON types only                 | JSON types + `_nczarr_attr` type annotation               |
+| Attribute type system       | JSON types only                 | JSON types; domain conventions define precision rules     |
 | `_FillValue` semantics      | Not defined                     | Defined, decoupled from `fill_value`                      |
 | Reserved attribute names    | Not defined                     | Defined in [Properties](#properties)                      |
 
@@ -414,7 +362,7 @@ A NZ-1.0 compliant dataset:
 | ----------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | Dimension definition    | Declared, named, and sized; shared by structural reference in file | Label in `dimension_names`; co-extent enforced by shared dimension constraint                    |
 | Coordinate variable     | 1D variable whose name matches a dimension name                    | Array whose `dimension_names` entry matches its own name and whose values are strictly monotonic |
-| Attribute type          | Declared NC type (`NC_FLOAT`, `NC_DOUBLE`, etc.)                   | JSON type + optional `_nczarr_attr` type annotation (Zarr v3 data type name)                     |
+| Attribute type          | Declared NC type (`NC_FLOAT`, `NC_DOUBLE`, etc.)                   | JSON type; domain conventions MAY define precision rules                                         |
 | `Conventions` attribute | Root-level string, capital C                                       | `conventions` root group attribute; `Conventions` treated as equivalent during reading           |
 | Unlimited dimension     | Supported                                                          | Not defined (out of scope)                                                                       |
 | User-defined types      | Supported in netCDF-4                                              | Not defined (out of scope)                                                                       |
@@ -430,7 +378,7 @@ _No implementations yet. This convention is in the Proposal stage._
 
 The following tools already use patterns compatible with NZ:
 
-- **[netCDF-C (NCZarr)](https://docs.unidata.ucar.edu/netcdf-c/current/nczarr_head.html)** — C library for netCDF data access. NCZarr's `_nczarr_attr` type annotation pattern is adopted by NZ for attribute type preservation.
+- **[netCDF-C (NCZarr)](https://docs.unidata.ucar.edu/netcdf-c/current/nczarr_head.html)** — C library for netCDF data access. NCZarr uses compatible dimension-naming and fill-value patterns when reading/writing Zarr.
 - **[xarray](https://github.com/pydata/xarray)** — Python library for labeled multi-dimensional arrays. Uses `dimension_names`, `_FillValue`, and `conventions` attributes when reading/writing Zarr.
 - **[netCDF-Java](https://github.com/Unidata/netcdf-java)** — Java library for scientific data access. Implements NUG semantics that NZ is designed to parallel.
 
