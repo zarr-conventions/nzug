@@ -47,8 +47,14 @@ spec. No changes to CF are required.
 - Declaration via `"conventions": "NZ-1.0"` in root group `attributes`. Space-separated
   for multi-convention datasets: `"conventions": "NZ-1.0 CF-1.12"`.
 - `Conventions` (capital C, NUG legacy) treated as equivalent to `conventions` during reading.
-- A `zarr_conventions` CMO entry (per zarr-conventions-spec framework) is optional but
-  recommended. See Appendix C of the spec for the registration object template.
+- A `zarr_conventions` CMO entry in a **dataset** (per zarr-conventions-spec framework) is
+  optional but recommended. The spec's Convention Declaration note correctly says datasets
+  "MAY additionally include" this entry.
+- The spec's "Convention Registration" section shows the CMO object that registers **the
+  convention itself** in the zarr-conventions framework — a one-time act by the convention
+  author, not a per-dataset requirement. These are two different things and should not be
+  confused. The spec prose "The convention must be registered" describes the convention's
+  own framework registration; it does not impose a MUST on datasets.
 
 ### Zarr v3 as baseline
 
